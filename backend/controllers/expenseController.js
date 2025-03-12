@@ -51,37 +51,36 @@ const getExpenses = async (req, res) => {
 };
 
 const getMonthlyBudget = async (req, res) => {
-  const { month, year, category } = req.query;
+  const { month, year } = req.query;
   const startDate = new Date(year, month - 1, 1);
   const endDate = new Date(year, month, 0);
 
   try {
     const q = query(
       collection(db, 'expenses'),
-      where('category', '==', category),
       where('date', '>=', startDate),
       where('date', '<=', endDate)
     );
     const expensesSnapshot = await getDocs(q);
     const totalAmount = expensesSnapshot.docs.reduce((sum, doc) => sum + doc.data().amount, 0);
 
-    const budgetRef = doc(db, 'budgets', `${category}_${year}_${month}`);
+    const budgetRef = doc(db, 'budgets', `${year}_${month}`);
     const budgetDoc = await getDoc(budgetRef);
     const budgetLimit = budgetDoc.exists() ? budgetDoc.data().limit : 0;
     const feedback = totalAmount > budgetLimit ? 'Over budget' : 'Within budget';
 
-    res.status(200).send({ category, totalAmount, budgetLimit, feedback });
+    res.status(200).send({ totalAmount, budgetLimit, feedback });
   } catch (error) {
     res.status(400).send(error.message);
   }
 };
 
 const setMonthlyBudget = async (req, res) => {
-  const { category, month, year, limit } = req.body;
+  const { month, year, limit } = req.body;
   try {
-    const budgetRef = doc(db, 'budgets', `${category}_${year}_${month}`);
-    await setDoc(budgetRef, { category, month, year, limit });
-    res.status(200).send({ category, month, year, limit });
+    const budgetRef = doc(db, 'budgets', `${year}_${month}`);
+    await setDoc(budgetRef, { month, year, limit });
+    res.status(200).send({ month, year, limit });
   } catch (error) {
     res.status(400).send(error.message);
   }
