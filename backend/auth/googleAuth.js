@@ -19,7 +19,7 @@ const googleLogin = async (req, res) => {
     const credential = GoogleAuthProvider.credential(token);
     const userCredential = await signInWithCredential(auth, credential);
     res.status(200).send(userCredential.user);
-  } catch (error) {
+  } catch (error) {a
     res.status(400).send(error.message);
   }
 };
