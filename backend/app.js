@@ -3,16 +3,18 @@ const bodyParser = require("body-parser");
 const passport = require("passport");
 const session = require("express-session");
 const dotenv = require("dotenv");
-
+const cors = require("cors");
 // Load environment variables
 dotenv.config();
-
+const app = express();
+app.use(cors());
+app.use(bodyParser.json());
 // Import routes
 const authRoutes = require("./routes/authRoutes");
 const expenseRoutes = require("./routes/expenseRoutes");
-
+const setExpenseRoutes = require('./routes/expenseRoutes');
+setExpenseRoutes(app);
 // Initialize Express app
-const app = express();
 
 // Middleware
 app.use(bodyParser.json());
