@@ -1,0 +1,59 @@
+document.addEventListener("DOMContentLoaded", () => {
+    const expenseForm = document.getElementById("expenseForm");
+    const expenseTable = document.getElementById("expenseTable");
+
+    // Fetch and display existing expenses
+    function loadExpenses() {
+        fetch("http://localhost:5000/expenses")
+            .then(response => response.json())
+            .then(data => {
+                expenseTable.innerHTML = "";
+                data.forEach(expense => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td class="border p-2">${expense.title}</td>
+                        <td class="border p-2">$${expense.amount}</td>
+                        <td class="border p-2">${expense.category}</td>
+                        <td class="border p-2 text-center">
+                            <button onclick="deleteExpense('${expense._id}')" class="text-red-600 hover:text-red-800">Delete</button>
+                        </td>
+                    `;
+                    expenseTable.appendChild(row);
+                });
+            })
+            .catch(error => console.error("Error fetching expenses:", error));
+    }
+
+    // Handle adding a new expense
+    expenseForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        
+        const newExpense = {
+            title: document.getElementById("expenseTitle").value,
+            amount: parseFloat(document.getElementById("expenseAmount").value),
+            category: document.getElementById("expenseCategory").value
+        };
+
+        fetch("http://localhost:5000/expenses", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(newExpense)
+        })
+        .then(response => response.json())
+        .then(() => {
+            expenseForm.reset();
+            loadExpenses();
+        })
+        .catch(error => console.error("Error adding expense:", error));
+    });
+
+    // Handle deleting an expense
+    window.deleteExpense = function (id) {
+        fetch(`http://localhost:5000/expenses/${id}`, { method: "DELETE" })
+        .then(() => loadExpenses())
+        .catch(error => console.error("Error deleting expense:", error));
+    };
+
+    // Load expenses on page load
+    loadExpenses();
+});

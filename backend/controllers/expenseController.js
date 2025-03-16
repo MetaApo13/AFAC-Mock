@@ -2,6 +2,7 @@ const { db } = require('../firebase');
 const { collection, addDoc, updateDoc, deleteDoc, getDocs, query, where, doc, getDoc, setDoc } = require('firebase/firestore');
 
 const createExpense = async (req, res) => {
+  console.log("Incoming request body:", req.body);
   const { amount, category, date, paymentMethod, description } = req.body;
   try {
     const docRef = await addDoc(collection(db, 'expenses'), {
